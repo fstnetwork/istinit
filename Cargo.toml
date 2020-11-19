@@ -1,0 +1,20 @@
+[package]
+name = "istinit"
+version = "0.0.1"
+authors = ["FST Network <tech@fstk.io>"]
+edition = "2018"
+
+[dependencies]
+snafu = "0.6"
+structopt = "0.3"
+lazy_static = "1.4"
+
+async-trait = "0.1"
+tokio = "0.3"
+futures = "0.3"
+
+hyper = "0.13"
+
+tracing = "0.1"
+tracing-subscriber = "0.2"
+tracing-futures = "0.2"
