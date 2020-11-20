@@ -24,3 +24,12 @@ dependencies = ["format"]
 [tasks.test]
 command = "cargo"
 args = ["test"]
+
+[tasks.build-docker]
+dependencies = ["format"]
+script = [
+'''
+IMAGE_TAG=$(git describe --tags --abbrev=0)
+docker build --file containers/Dockerfile --tag=istinit:$IMAGE_TAG .
+'''
+]
