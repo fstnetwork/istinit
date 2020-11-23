@@ -13,6 +13,8 @@ pub async fn wait_for_envoy_ready(
     interval: Duration,
     max_retry_limit: Option<usize>,
 ) -> Result<(), Error> {
+    tracing::info!("Waiting for Envoy ready using Istio API '{}'", endpoint);
+
     let client = hyper::Client::new();
     let uri: hyper::Uri = format!("{}/healthz/ready", endpoint).parse().with_context(|| {
         error::ParsePilotAgentEndpoint { pilot_agent_endpoint: endpoint.to_owned() }
@@ -23,7 +25,10 @@ pub async fn wait_for_envoy_ready(
         retry_count += 1;
         match client.get(uri.clone()).await {
             Ok(resp) => match resp.status() {
-                hyper::StatusCode::OK => return Ok(()),
+                hyper::StatusCode::OK => {
+                    tracing::info!("Envoy is ready! (retry count: {})", retry_count);
+                    return Ok(());
+                }
                 status => {
                     tracing::info!("Polling Envoy ({}), status : {}", retry_count, status);
                 }
