@@ -4,6 +4,10 @@ use snafu::ResultExt;
 
 use crate::error::{self, Error};
 
+/// # Errors
+///
+/// Will return `Err` if failed to parse pilot agent endpoint or retry limit
+/// reached
 pub async fn wait_for_envoy_ready(
     endpoint: &str,
     interval: Duration,
@@ -40,6 +44,10 @@ pub async fn wait_for_envoy_ready(
     }
 }
 
+/// # Errors
+///
+/// Will return `Err` if failed to parse pilot agent endpoint or failed to kill
+/// istio
 pub async fn kill_istio_with_api(endpoint: &str) -> Result<(), Error> {
     tracing::info!("Stopping Istio using Istio API '{}'", endpoint);
 
