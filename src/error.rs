@@ -13,6 +13,10 @@ pub enum Error {
     ))]
     KillIstioWithApi { pilot_agent_endpoint: String, source: hyper::Error, backtrace: Backtrace },
 
-    #[snafu(display("Could not parse Evnoy admin endpoint: {}", pilot_agent_endpoint))]
+    #[snafu(display(
+        "Could not parse Evnoy admin endpoint: {}, error: {}",
+        pilot_agent_endpoint,
+        source
+    ))]
     ParsePilotAgentEndpoint { pilot_agent_endpoint: String, source: hyper::http::uri::InvalidUri },
 }
