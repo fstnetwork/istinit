@@ -11,7 +11,7 @@ use crate::{
     error::{self, Error},
 };
 
-pub fn run(config: Config) -> Result<(), Error> {
+pub fn run(config: Config) -> Result<i32, Error> {
     {
         use tracing_subscriber::prelude::*;
 
@@ -34,13 +34,17 @@ pub fn run(config: Config) -> Result<(), Error> {
                     .context(error::WaitForEnvoyReady)?;
             }
 
-            {
+            let exit_code = {
                 let process = config.process;
                 tracing::info!("Spawn process {} and wait", process.command);
-                if let Err(err) = spawn_and_wait_executable(&process.command, &process.args).await {
-                    tracing::warn!("Error: {}", err);
-                };
-            }
+                match spawn_and_wait_executable(&process.command, &process.args).await {
+                    Ok(code) => code,
+                    Err(err) => {
+                        tracing::warn!("Error: {}", err);
+                        -1
+                    }
+                }
+            };
 
             if let Some(istio) = &config.istio {
                 if istio.kill_istio {
@@ -51,21 +55,21 @@ pub fn run(config: Config) -> Result<(), Error> {
                 }
             }
 
-            Ok(())
+            Ok(exit_code)
         }
         .compat(),
-    )?;
-
-    Ok(())
+    )
 }
 
 async fn spawn_and_wait_executable(command: &str, args: &[String]) -> Result<i32, Error> {
+    use std::os::unix::process::ExitStatusExt;
+
     let mut child = tokio::process::Command::new(command)
         .args(args)
         .spawn()
         .context(error::SpawnProcess { executable_path: PathBuf::from(command) })?;
 
-    let _status = child.wait().await.context(error::WaitForChildProcess)?;
+    let status = child.wait().await.context(error::WaitForChildProcess)?;
 
-    Ok(0)
+    Ok(status.code().unwrap_or_else(|| status.signal().expect("Process is killed by signal")))
 }

@@ -17,7 +17,7 @@ pub struct Command {
     #[structopt(
         long = "pilot-agent-endpoint",
         env = "PILOT_AGENT_ENDPOINT",
-        default_value = "http://127.0.0.1:15021"
+        default_value = "http://127.0.0.1:15020"
     )]
     pilot_agent_endpoint: String,
 
@@ -33,7 +33,7 @@ impl Command {
     #[inline]
     pub fn new() -> Command { Command::from_args() }
 
-    pub fn run(self) -> Result<(), Error> { run::run(self.into()) }
+    pub fn run(self) -> Result<i32, Error> { run::run(self.into()) }
 }
 
 impl Into<Config> for Command {
