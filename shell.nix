@@ -19,7 +19,7 @@ in pkgs.mkShell {
 
     kubectl
     kind
-    istio
+    istioctl
   ];
 
   RUST_BACKTRACE = 1;
